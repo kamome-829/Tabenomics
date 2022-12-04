@@ -1,0 +1,375 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\contracts\\Tabenomics.sol": {
+      "lastModificationDate": 1670158616445,
+      "contentHash": "ae0fef0c5edb2836cebde5987da7c96d",
+      "sourceName": "contracts/Tabenomics.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "erc721a/contracts/ERC721A.sol",
+        "erc721a/contracts/extensions/ERC721ABurnable.sol",
+        "erc721a/contracts/extensions/ERC721AQueryable.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "Tabenomics"
+      ]
+    },
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\node_modules\\erc721a\\contracts\\ERC721A.sol": {
+      "lastModificationDate": 1669519837638,
+      "contentHash": "227e9db819fd61602f833edafcda7d4a",
+      "sourceName": "erc721a/contracts/ERC721A.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC721A.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "ERC721A",
+        "ERC721A__IERC721Receiver"
+      ]
+    },
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
+      "lastModificationDate": 1669522319149,
+      "contentHash": "e5b340f096754e7030aa6bc5a2595635",
+      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\node_modules\\erc721a\\contracts\\IERC721A.sol": {
+      "lastModificationDate": 1669519837670,
+      "contentHash": "c31a05698ddc2f109ba8723105d854c6",
+      "sourceName": "erc721a/contracts/IERC721A.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "IERC721A"
+      ]
+    },
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
+      "lastModificationDate": 1669522283174,
+      "contentHash": "0a9087389e86869125aa3120d2a1c6f8",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\node_modules\\erc721a\\contracts\\extensions\\ERC721ABurnable.sol": {
+      "lastModificationDate": 1669519837646,
+      "contentHash": "674a8114051cb251ef9ae97c11d27cab",
+      "sourceName": "erc721a/contracts/extensions/ERC721ABurnable.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC721ABurnable.sol",
+        "../ERC721A.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "ERC721ABurnable"
+      ]
+    },
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\node_modules\\erc721a-upgradeable\\contracts\\ERC721AStorage.sol": {
+      "lastModificationDate": 1669508180253,
+      "contentHash": "2bebb9fb7b7e001916c833eb49ff74d3",
+      "sourceName": "erc721a-upgradeable/contracts/ERC721AStorage.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC721AStorage"
+      ]
+    },
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\node_modules\\erc721a\\contracts\\extensions\\IERC721ABurnable.sol": {
+      "lastModificationDate": 1669519837670,
+      "contentHash": "563d24d96afd45ee8d576e7b55b3e5f5",
+      "sourceName": "erc721a/contracts/extensions/IERC721ABurnable.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC721A.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "IERC721ABurnable"
+      ]
+    },
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\node_modules\\erc721a\\contracts\\extensions\\ERC721AQueryable.sol": {
+      "lastModificationDate": 1669519837670,
+      "contentHash": "3ef0cd5882c4d9deb6b6348146b2a17b",
+      "sourceName": "erc721a/contracts/extensions/ERC721AQueryable.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC721AQueryable.sol",
+        "../ERC721A.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "ERC721AQueryable"
+      ]
+    },
+    "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\node_modules\\erc721a\\contracts\\extensions\\IERC721AQueryable.sol": {
+      "lastModificationDate": 1669519837678,
+      "contentHash": "e422c9bdd6c1996b422c8d6e2a60a59c",
+      "sourceName": "erc721a/contracts/extensions/IERC721AQueryable.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC721A.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "IERC721AQueryable"
+      ]
+    }
+  }
+}
