@@ -7,23 +7,28 @@ import "erc721a/contracts/extensions/ERC721AQueryable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
-    string public baseURI = "ipfs://bafybeig6fzsdgndbd7epi7mqvylqgz5eyomwfcnxqy4idgf3zovm4dymga/";
+    string public baseURI = "ipfs://bafybeibkhw6su5qahc3washzq4sxa4rwsjyapehejv7v5h7ib7ovbajh4q/metadata";
     uint256 constant MaxMint = 3;
-    uint256 constant MaxNfts = 100;
+    uint256 constant MaxNfts = 3000;
     uint256 constant startTokenId = 1;
     uint256 nowTokenId = 0;
     uint256 totalNFTs = 0;
     uint256 constant TokenIdIncrement = 1;
     uint256 public quantity;
-    address FreeMintAddress1 = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
-    address FreeMintAddress2 = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
-    uint256 [] HaveToken;
+    address FreeMintAddress1 = 0xEBD831aA0343789150Cdffce067479Bb848C5aC8;
+    address FreeMintAddress2 = 0x4CFaFBcE67942e79Edb1dd67eccC271a536D202D;
+    uint256 mintNumber;
+    uint256 totalMint;
+    uint256[] MyNftTokenId;
+    
+    
 
     constructor() ERC721A("Tabenomics", "TBM") {
     }
 
 
-    event MintLog(address from, address to, uint256 tokenId);
+    event MintLog(address to, uint256 quantity);
+    event TransferLog(address from, address to, uint256 tokenId);
 
     /// @dev ベースURI:ipfs//~
     function _baseURI() internal view virtual override returns (string memory) {
@@ -88,6 +93,7 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         require(MaxMint >= quantity, "MaxMint Over");
         _nextTokenId();
         _mint(msg.sender, quantity);
+        emit MintLog(msg.sender, quantity);
     }
 
     /**
@@ -104,6 +110,7 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         //require(MaxNfts >= totalNFTs,"sold out");
         _nextTokenId();
         _mint(msg.sender, quantity);
+        emit MintLog(msg.sender, quantity);
     }
 
     /**
@@ -119,14 +126,13 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
      {
         _nextTokenId();
         _mint(msg.sender, quantity);
+        emit MintLog(msg.sender, quantity);
     }
 
-/*
-    function changeURI(string calldata seturi) external onlyOwner{
-        baseURI = seturi;
-        nowTokenId = startTokenId;
-    }
-*/
+    /**
+    * @dev
+    * - バーン関数
+    */
     function burn(uint256 tokenId, bool approvalCheck) internal virtual {
         _burn(tokenId, approvalCheck);
     }
@@ -154,22 +160,68 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         require(success);
     }
 
-
+    /**
+    * @dev
+    * - ここからトランスファー
+    * - ユーザーとオーナー
+    */
     function UserTransfer(
     uint256 tokenId
     ) public virtual{
         transferFrom(msg.sender, owner(), tokenId);
+        emit TransferLog(msg.sender, owner(), tokenId);
     }
-
 
     function OwnerTransfer(
     address to,
     uint256 tokenId
     ) public virtual onlyOwner{
         transferFrom(owner(), to, tokenId);
+        emit TransferLog(owner(), to, tokenId);
     }
 
-    function _tokensOfOwner(address owner) external view returns (uint256[] memory){
-        return HaveToken;
+    function BeforeTokenTransfers(
+        address from,
+        uint256 stratId,
+        uint256 quantity
+    ) external virtual {
+        _beforeTokenTransfers(msg.sender, from, stratId, quantity);
+    }
+
+    function AfterTokenTransfers(
+        address from,
+        uint256 stratId,
+        uint256 quantity
+    ) external virtual {
+        _afterTokenTransfers(msg.sender, from, stratId, quantity);
+    }
+
+    function NumberMinted() external returns (uint256){
+        return _numberMinted(msg.sender);
+    }
+
+    /**
+    * @dev
+    * - ユーザーの所持トークンIDを取得
+    */
+    function MyTokenId() public returns(uint256[] memory) {
+        uint256 index = 1;
+        uint256 dindex = 0;
+        address user;
+        uint leng = 0;
+        totalMint = totalSupply();
+        leng = MyNftTokenId.length;
+        while (dindex < leng){
+            MyNftTokenId.pop();
+            dindex = dindex + 1;
+        }
+        while (index <= totalMint){
+            user = ownerOf(index);
+            if (user == msg.sender){
+                MyNftTokenId.push(index);
+            }
+            index = index + 1;
+        }
+        return MyNftTokenId;
     }
 }

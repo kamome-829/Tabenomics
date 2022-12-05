@@ -1,9 +1,21 @@
-const main = async() => {
-    Tabennomics = await ethers.getContractFactory("TabennomicsNFT");
-    tabennomics = await Tabennomics.deploy();
-    await tabennomics.deployed();
+const fs = require("fs");
 
-    console.log(`Contract deployd to: ${tabennomics.address}`);
+const main = async() => {
+    Tabenomics = await ethers.getContractFactory("Tabenomics");
+    tabenomics = await Tabenomics.deploy();
+    await tabenomics.deployed();
+
+    console.log(`Contract deployd to: ${tabenomics.address}`);
+
+    let tx = await tabenomics.mintOwner(10);
+    await tx.wait();
+
+    //コントラクトアドレスの書き出し
+    fs.writeFileSync("./TabenomicsContract.js",
+    `
+    module.exports = "${tabenomics.address}"
+    `
+    );
 }
 
 const deploy = async () =>{
