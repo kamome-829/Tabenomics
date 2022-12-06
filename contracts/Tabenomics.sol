@@ -11,6 +11,9 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     uint256 constant MaxMint = 3;
     uint256 constant MaxNfts = 3000;
     uint256 constant startTokenId = 1;
+    uint256 constant NftSalePrice = 30000000000000000;
+    uint256 constant NftPrice = 50000000000000000;
+    uint256 cost = NftPrice;
     uint256 nowTokenId = 0;
     uint256 totalNFTs = 0;
     uint256 constant TokenIdIncrement = 1;
@@ -78,6 +81,21 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         require((FreeMintAddress1 == freeaddress) || (FreeMintAddress2 == freeaddress),"No Free Mint Address It");
         _;
     }
+
+    /**
+    * @dev
+    * - プレセール、通常時の価格設定
+    */
+    function PriceCange(bool _to)
+    external
+    onlyOwner
+    {
+        if(_to == true){
+            cost = NftSalePrice;
+        }else{
+            cost = NftPrice;
+        }
+    }
     
     /**
     * @dev
@@ -86,12 +104,16 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     * - 最大数以上Mintしないように制限
     */
     function mintUser(uint256 quantity) external
+    payable
     MaxMints
     NosingOverMints(quantity) 
     {
         //require(MaxNfts >= totalNFTs,"sold out");
         require(MaxMint >= quantity, "MaxMint Over");
+        require(msg.value >= quantity * cost, "Not enough money");
         _nextTokenId();
+        deposit();
+        withdraw();
         _mint(msg.sender, quantity);
         emit MintLog(msg.sender, quantity);
     }
@@ -132,6 +154,7 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     /**
     * @dev
     * - バーン関数
+    * - 
     */
     function burn(uint256 tokenId, bool approvalCheck) internal virtual {
         _burn(tokenId, approvalCheck);
@@ -153,8 +176,9 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         return msg.sender.balance;
     }
 
-    function withdraw(uint _amount) public payable {
-        (bool success, ) = payable(owner()).call{value: _amount}(
+    // オーナーアドレスへコントラクトアドレスのethを全て送金
+    function withdraw() public payable {
+        (bool success, ) = payable(owner()).call{value: address(this).balance}(
             ""
         );
         require(success);
@@ -162,16 +186,28 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
 
     /**
     * @dev
-    * - ここからトランスファー
-    * - ユーザーとオーナー
+    * - ユーザートランスファー
+    * - ユーザーの持っているNFTの数とTokenIdを出す
+    * - その後条件にかけてburn
     */
     function UserTransfer(
-    uint256 tokenId
+    uint256 quantity
     ) public virtual{
-        transferFrom(msg.sender, owner(), tokenId);
-        emit TransferLog(msg.sender, owner(), tokenId);
+        uint256[] memory tokenNumber = MyTokenId();
+        uint256 tokenleng = tokenNumber.length;
+        uint256 index = 0;
+        require(tokenleng >= quantity,"NFT Nons");
+        while(quantity > index){
+            transferFrom(msg.sender, owner(), tokenNumber[index]);
+            emit TransferLog(msg.sender, owner(), tokenNumber[index]);
+            index = index + 1;
+        }
     }
 
+    /**
+    * @dev
+    * - オーナートランスファー
+    */
     function OwnerTransfer(
     address to,
     uint256 tokenId
@@ -196,15 +232,11 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         _afterTokenTransfers(msg.sender, from, stratId, quantity);
     }
 
-    function NumberMinted() external returns (uint256){
-        return _numberMinted(msg.sender);
-    }
-
     /**
     * @dev
     * - ユーザーの所持トークンIDを取得
     */
-    function MyTokenId() public returns(uint256[] memory) {
+    function MyTokenId() private returns(uint256[] memory) {
         uint256 index = 1;
         uint256 dindex = 0;
         address user;

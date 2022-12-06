@@ -7,8 +7,6 @@ const main = async() => {
 
     console.log(`Contract deployd to: ${tabenomics.address}`);
 
-    let tx = await tabenomics.mintOwner(10);
-    await tx.wait();
 
     //コントラクトアドレスの書き出し
     fs.writeFileSync("./TabenomicsContract.js",
