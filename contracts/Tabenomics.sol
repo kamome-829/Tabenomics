@@ -7,22 +7,23 @@ import "erc721a/contracts/extensions/ERC721AQueryable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
-    string public baseURI = "ipfs://bafybeibkhw6su5qahc3washzq4sxa4rwsjyapehejv7v5h7ib7ovbajh4q/metadata";
-    uint256 constant MaxMint = 3;
-    uint256 constant MaxNfts = 3000;
-    uint256 constant startTokenId = 1;
-    uint256 constant NftSalePrice = 30000000000000000;
-    uint256 constant NftPrice = 50000000000000000;
-    uint256 cost = NftPrice;
+    string public baseURI = "ipfs://bafybeibkhw6su5qahc3washzq4sxa4rwsjyapehejv7v5h7ib7ovbajh4q/metadata";   //ベースURI
+    uint256 constant MaxMint = 3;   //1人辺りのミント最大数
+    uint256 constant MaxNfts = 3000;   //NFTの総数
+    uint256 constant startTokenId = 1;   //NFTミントスタートID
+    uint256 constant NftSalePrice = 30000000000000000;   //プレセール値
+    uint256 constant NftPrice = 50000000000000000;   //パブリックセール値
+    uint256 cost = NftPrice;   //NFT価格初期設定
     uint256 nowTokenId = 0;
     uint256 totalNFTs = 0;
-    uint256 constant TokenIdIncrement = 1;
-    uint256 public quantity;
-    address FreeMintAddress1 = 0xEBD831aA0343789150Cdffce067479Bb848C5aC8;
-    address FreeMintAddress2 = 0x4CFaFBcE67942e79Edb1dd67eccC271a536D202D;
-    uint256 mintNumber;
-    uint256 totalMint;
-    uint256[] MyNftTokenId;
+    address FreeMintAddress1 = 0xEBD831aA0343789150Cdffce067479Bb848C5aC8;   //フリーミントアドレス1
+    address FreeMintAddress2 = 0x4CFaFBcE67942e79Edb1dd67eccC271a536D202D;   //フリーミントアドレス2
+    uint256 totalMint;   //今までのミントされた合計数
+    uint256[] MyNftTokenId;   //ユーザーの総トークンID
+    address[] public whitelistedAddresses;   //ホワイトリストアドレス
+    bool public onlyWhitelisted = false;   //ホワイトリストメンバーしかミントできない状態
+    mapping(address => uint256) public WhitelistAddressMintedBalance;   //ホワイトリストMint数
+    mapping(address => uint256) public addressMintedBalance;   //ユーザーMint数
     
     
 
@@ -32,6 +33,7 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
 
     event MintLog(address to, uint256 quantity);
     event TransferLog(address from, address to, uint256 tokenId);
+    event TokenTransfer(address from, address receiver, uint amount);
 
     /// @dev ベースURI:ipfs//~
     function _baseURI() internal view virtual override returns (string memory) {
@@ -76,7 +78,6 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     * @dev
     * -  フリーMintアドレスの確認
     */
-    
     modifier FreeMintChake(address freeaddress){
         require((FreeMintAddress1 == freeaddress) || (FreeMintAddress2 == freeaddress),"No Free Mint Address It");
         _;
@@ -85,36 +86,71 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     /**
     * @dev
     * - プレセール、通常時の価格設定
+    * - プレセールホワイトリスト切り替え
     */
-    function PriceCange(bool _to)
+    function PriceCange(bool sale)
     external
     onlyOwner
     {
-        if(_to == true){
+        if(sale == true){
             cost = NftSalePrice;
+            onlyWhitelisted = sale;
         }else{
             cost = NftPrice;
+            onlyWhitelisted = sale;
         }
     }
+
+    /**
+    * @dev
+    * - ホワイトリスト格納関数
+    */
+    function whitelistUsers(address[] calldata _users)public onlyOwner{
+        delete whitelistedAddresses;
+        whitelistedAddresses = _users;
+    }
+
+    /**
+    * @dev
+    * - ホワイトリスト格納関数
+    */
+    function isWhitelisted(address _user)public view returns(bool){
+        for(uint i = 0; i < whitelistedAddresses.length; i++){
+            if(whitelistedAddresses[i] == _user){
+                return true;
+            }
+        }
+        return false;
+    }
+
     
     /**
     * @dev
     * - ユーザーMint
     * - 一度のMint最大数3
     * - 最大数以上Mintしないように制限
+    * - プレセール時はホワイトリストメンバーのみ制限
     */
     function mintUser(uint256 quantity) external
     payable
     MaxMints
     NosingOverMints(quantity) 
     {
-        //require(MaxNfts >= totalNFTs,"sold out");
-        require(MaxMint >= quantity, "MaxMint Over");
+        uint256 MintCount = addressMintedBalance[msg.sender];
+        require(MintCount + quantity <= MaxMint, "MaxMint Over");
         require(msg.value >= quantity * cost, "Not enough money");
+        if(onlyWhitelisted == true){
+            require(isWhitelisted(msg.sender),"user is not whitelisted");
+            uint256 ownerMintedCount = WhitelistAddressMintedBalance[msg.sender];
+            require(ownerMintedCount + quantity <= MaxMint, "MaxMint Over");
+        }
         _nextTokenId();
-        deposit();
-        withdraw();
         _mint(msg.sender, quantity);
+        withdraw();
+        if(onlyWhitelisted != true){
+            addressMintedBalance[msg.sender] += quantity;
+        }
+        WhitelistAddressMintedBalance[msg.sender] += quantity;
         emit MintLog(msg.sender, quantity);
     }
 
@@ -123,16 +159,17 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     * - オーナーMint
     * - 一度のMint上限数なし
     * - 最大数以上Mintしないように制限
+    * - Mintする
     */
-    function mintOwner(uint256 quantity) external
+    function mintOwner(address _to, uint256 quantity) external
      onlyOwner
      MaxMints
-     NosingOverMints(quantity) 
+     NosingOverMints(quantity)
      {
         //require(MaxNfts >= totalNFTs,"sold out");
         _nextTokenId();
-        _mint(msg.sender, quantity);
-        emit MintLog(msg.sender, quantity);
+        _mint(_to, quantity);
+        emit MintLog(_to, quantity);
     }
 
     /**
@@ -167,9 +204,6 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     * - 特定アドレスのみフリーミント可能
     * - 最大数以上Mintしないように制限
     */
-
-    // Tabenomicsコントラクトアドレスにetherを送金する関数
-    function deposit() payable public {}
 
     // 接続アドレスのether残高を返す関数
     function getBalance() public view returns (uint256) {
