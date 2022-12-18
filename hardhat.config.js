@@ -6,7 +6,7 @@ require("@nomiclabs/hardhat-etherscan");
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.4",
+  solidity: "0.8.17",
   networks: {
     goerli:{
       url: `https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHMY_API_KEY}`,
