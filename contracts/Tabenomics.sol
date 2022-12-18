@@ -40,6 +40,11 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         return baseURI;
     }
 
+    /// @dev ベースURI変更 非常用
+    function chngebaseURI(string memory uri) external onlyOwner () {
+        baseURI = uri;
+    }
+
     /// @dev URIのスタートナンバー
     function _startTokenId() internal view virtual override returns (uint256){
         //nowTokenId = startTokenId;
@@ -54,6 +59,11 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     /// @dev Mintされた合計数
     function _totalMinted() internal view override returns (uint256){
         return totalNFTs;
+    }
+
+    /// @dev セール状態の確認
+    function viewsale() public view returns (bool){
+        return onlyWhitelisted;
     }
 
     /**

@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\81704\\Documents\\NFTProject\\src\\Tabenomics\\contracts\\Tabenomics.sol": {
-      "lastModificationDate": 1670742062091,
-      "contentHash": "2e6cf44688408754d04d650c4c361b60",
+      "lastModificationDate": 1671283450718,
+      "contentHash": "c7aa5b5ae8c66365b0d3a3fb78c9ccdb",
       "sourceName": "contracts/Tabenomics.sol",
       "solcConfig": {
         "version": "0.8.4",
