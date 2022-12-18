@@ -4,7 +4,6 @@ const main = async() => {
     Tabenomics = await ethers.getContractFactory("Tabenomics");
     tabenomics = await Tabenomics.deploy();
     await tabenomics.deployed();
-
     console.log(`Contract deployd to: ${tabenomics.address}`);
 
 
