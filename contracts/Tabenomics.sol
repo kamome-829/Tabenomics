@@ -24,6 +24,7 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     bool public onlyWhitelisted = false;   //ホワイトリストメンバーしかミントできない状態
     mapping(address => uint256) public WhitelistAddressMintedBalance;   //ホワイトリストMint数
     mapping(address => uint256) public addressMintedBalance;   //ユーザーMint数
+    mapping(address => uint256) public UserBurnBalance;   //ユーザーバーン数
     
 
 
@@ -270,8 +271,25 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         while(quantity > index){
             transferFrom(msg.sender, owner(), tokenNumber[index]);
             emit TransferLog(msg.sender, owner(), tokenNumber[index]);
+            UserBurnBalance[msg.sender]++;
             index = index + 1;
         }
+    }
+
+    /**
+    * @dev
+    * - ユーザーバーン数の確認
+    */
+    function UserBurnView(address to)public view returns(uint256){
+        return UserBurnBalance[to];
+    }
+
+    /**
+    * @dev
+    * - ユーザーバーン数のリセット
+    */
+    function UserBurnReset(address to, uint256 quantity)external onlyOwner (){
+        UserBurnBalance[to] = UserBurnBalance[to] - quantity;
     }
 
     /**
