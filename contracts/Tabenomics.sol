@@ -10,20 +10,18 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     string public baseURI = "ipfs://bafybeibkhw6su5qahc3washzq4sxa4rwsjyapehejv7v5h7ib7ovbajh4q/metadata";   //ベースURI
     uint256 constant confirmMaxMint = 2;   //確定WL、1人辺りのミント最大数
     uint256 constant MaxMint = 3;   //非確定WL、パブリック1人辺りのミント最大数
-    uint256 constant MaxNfts = 3000;   //NFTの総数
+    uint256 constant MaxNfts = 2000;   //NFTの総数
     uint256 constant startTokenId = 1;   //NFTミントスタートID
-    uint256 constant NftSalePrice = 35000000000000000;   //確定、プレセール値
-    uint256 constant NftPrice = 40000000000000000;   //パブリックセール値
+    uint256 constant NftSalePrice = 25000000000000000;   //確定、プレセール値
+    uint256 constant NftPrice = 30000000000000000;   //パブリックセール値
 
     uint256 nowTokenId = 0;
     uint256 totalNFTs = 0;
-    address FreeMintAddress1 = 0xEBD831aA0343789150Cdffce067479Bb848C5aC8;   //フリーミントアドレス1
-    address FreeMintAddress2 = 0x4CFaFBcE67942e79Edb1dd67eccC271a536D202D;   //フリーミントアドレス2
 
-    uint256 public saleStartTime1st = 1675252800; // 2023/02/17 20:00:00 JST
-    uint256 public saleStartTime2nd = 1675253400; // 2023/02/17 20:30:00 JST
-    uint256 public saleStartTimePublic = 1675254000; // 2023/02/17 23:00:00 JST
-    uint256 public saleFinish = 1675254600; // 2023/02/17 23:00:00 JST
+    uint256 public saleStartTime1st = 1677582000; // 2023/02/28 20:00:00 JST
+    uint256 public saleStartTime2nd = 1677583800; // 2023/02/28 20:30:00 JST
+    uint256 public saleStartTimePublic = 1677592800; // 2023/02/28 23:00:00 JST
+    uint256 public saleFinish = 1677679200; // 2023/02/29 23:00:00 JST
 
     uint256 totalMint;   //今までのミントされた合計数
     uint256[] MyNftTokenId;   //ユーザーの総トークンID
@@ -107,15 +105,6 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     */
     modifier NosingOverMints(uint256 quatity){
         require(quatity <= MaxNfts - totalSupply(),"Mints less please");
-        _;
-    }
-
-    /**
-    * @dev
-    * -  フリーMintアドレスの確認
-    */
-    modifier FreeMintChake(address freeaddress){
-        require((FreeMintAddress1 == freeaddress) || (FreeMintAddress2 == freeaddress),"No Free Mint Address It");
         _;
     }
 
@@ -342,22 +331,6 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         _nextTokenId();
         _safeMint(_to, quantity);
         emit MintLog(_to, quantity);
-    }
-
-    /**
-    * @dev
-    * - フリーMint
-    * - 特定アドレスのみフリーミント可能
-    * - 最大数以上Mintしないように制限
-    */
-    function freemint(uint256 quantity) external
-     MaxMints
-     NosingOverMints(quantity)
-     FreeMintChake(msg.sender)
-     {
-        _nextTokenId();
-        _safeMint(msg.sender, quantity);
-        emit MintLog(msg.sender, quantity);
     }
 
     /**
