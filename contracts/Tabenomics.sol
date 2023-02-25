@@ -81,7 +81,7 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     function checker(address _user)external view returns(uint256){
         uint256 ans = 0;
         ans = ans + confirmWhitelistAddressMintedBalance[_user];
-        ans = ans + WhitelistAddressMintedBalance[_user] * 10;
+        ans = ans + WhitelistAddressMintedBalance[_user] * 100;
         return ans;
     }
 
