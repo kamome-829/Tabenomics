@@ -92,8 +92,6 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         return block.timestamp;
     }
 
-
-
     /**
     * @dev
     * - 最大数までMintされていたらMintしない
