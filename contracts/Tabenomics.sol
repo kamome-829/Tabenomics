@@ -7,10 +7,11 @@ import "erc721a/contracts/extensions/ERC721AQueryable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
-    string public baseURI = "ipfs://bafybeibkhw6su5qahc3washzq4sxa4rwsjyapehejv7v5h7ib7ovbajh4q/metadata";   //ベースURI
+    string public baseURI = "ipfs://bafybeidclrnogqvtp2ahfy4tq4tg6xj7y6axb7ng4uavapbsqjm4ysm6ea/metadata";   //ベースURI
     uint256 constant confirmMaxMint = 2;   //非確定WL、確定WL、1人辺りのミント最大数
     uint256 constant MaxMint = 3;   //パブリック1人辺りのミント最大数
-    uint256 constant MaxNfts = 2000;   //NFTの総数
+    uint256 constant MaxNfts = 1500;   //NFTの総数
+    uint256 constant MaxNftsOw = 2000;   //NFTの総数オーナー用
     uint256 constant startTokenId = 1;   //NFTミントスタートID
     uint256 constant NftSalePrice = 25000000000000000;   //確定、プレセール値
     uint256 constant NftPrice = 30000000000000000;   //パブリックセール値
@@ -18,7 +19,8 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     uint256 nowTokenId = 0;
     uint256 totalNFTs = 0;
 
-    uint256 public saleStartTime1st = 1677582000; // 2023/02/28 20:00:00 JST
+    //uint256 public saleStartTime1st = 1677582000; // 2023/02/28 20:00:00 JST
+    uint256 public saleStartTime1st = 1677510000;
     uint256 public saleStartTime2nd = 1677583800; // 2023/02/28 20:30:00 JST
     uint256 public saleStartTimePublic = 1677592800; // 2023/02/28 23:00:00 JST
     uint256 public saleFinish = 1677679200; // 2023/02/29 23:00:00 JST
@@ -30,22 +32,25 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     bool public onlyconfirmWhitelisted = false;   //確定ホワイトリストメンバーしかミントできない状態
     bool public onlyWhitelisted = false;   //ホワイトリストメンバーしかミントできない状態
 
+    mapping(address => bool)public whitelist;
+    mapping(address => bool)public oglist;
     mapping(address => uint256) public WhitelistAddressMintedBalance;   //非確定ホワイトリストMint数
     mapping(address => uint256) public confirmWhitelistAddressMintedBalance;   //確定ホワイトリストMint数
     mapping(address => uint256) public WhitelistAddressMaxmint;   //非確定ホワイトリストMaxMint数
     mapping(address => uint256) public confirmWhitelistAddressMaxmint;   //確定ホワイトリストMaxMint数
+    mapping(address => uint256) public stertWhitelistAddressMaxmint;   //初期確定ホワイトリストMaxMint数
     mapping(address => uint256) public confirmWhitelistAddressRemainingmint;   //確定ホワイトリスト残りMint数
     mapping(address => uint256) public WhitelistAddressRemainingmint;   //非確定ホワイトリスト残りMint数
     mapping(address => uint256) public addressMintedBalance;   //ユーザーMint数
     mapping(address => uint256) public UserBurnBalance;   //ユーザーバーン数
-    
-    constructor() ERC721A("Tabenomics", "TBM") {
+
+
+    constructor() ERC721A("Tabenomics", "NHA") {
     }
 
     event MintLog(address to, uint256 quantity);
     event TransferLog(address from, address to, uint256 tokenId);
     event TokenTransfer(address from, address receiver, uint amount);
-
 
     /// @dev ベースURI:ipfs//~
     function _baseURI() internal view virtual override returns (string memory) {
@@ -81,8 +86,9 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     /// @dev チェッカー関数
     function checker(address _user)external view returns(uint256){
         uint256 ans = 0;
-        ans = ans + confirmWhitelistAddressMintedBalance[_user];
-        ans = ans + WhitelistAddressMintedBalance[_user] * 100;
+        ans = ans + confirmWhitelistAddressMaxmint[_user];
+        ans = ans << 8;
+        ans = ans + WhitelistAddressMaxmint[_user];
         return ans;
     }
 
@@ -97,6 +103,15 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     */
     modifier MaxMints(){
         require(MaxNfts >= totalSupply(),"sold out");
+        _;
+    }
+
+    /**
+    * @dev
+    * - 最大数までMintされていたらMintしない
+    */
+    modifier MaxMintsow(){
+        require(MaxNftsOw >= totalSupply(),"sold out");
         _;
     }
 
@@ -153,22 +168,41 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         onlyWhitelisted = false;
     }
 
+    function confirmwhitelistUsers(address[] calldata _users)public onlyOwner{
+        for(uint i = 0; i < _users.length; i++){
+            oglist[_users[i]] = true;
+            confirmWhitelistAddressMaxmint[_users[i]] += confirmMaxMint;
+        }
+    }
+
+    function whitelistUsers(address[] calldata _users)public onlyOwner{
+        for(uint i = 0; i < _users.length; i++){
+            whitelist[_users[i]] = true;
+            WhitelistAddressMaxmint[_users[i]] += confirmMaxMint;
+            stertWhitelistAddressMaxmint[_users[i]] += confirmMaxMint;
+        }
+    }
+
     /**
     * @dev
     * - 確定ホワイトリスト格納関数
     */
+    /*
     function confirmwhitelistUsers(address[] calldata _users)public onlyOwner{
+
         delete confirmwhitelistedAddresses;
         confirmwhitelistedAddresses = _users;
         for(uint i = 0; i < confirmwhitelistedAddresses.length; i++){
             confirmWhitelistAddressMaxmint[confirmwhitelistedAddresses[i]] += confirmMaxMint;
         }
     }
+    */
 
     /**
     * @dev
     * - 非確定ホワイトリスト格納関数
     */
+    /*
     function whitelistUsers(address[] calldata _users)public onlyOwner{
         delete whitelistedAddresses;
         whitelistedAddresses = _users;
@@ -176,16 +210,30 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
             WhitelistAddressMaxmint[whitelistedAddresses[i]] += confirmMaxMint;
         }
     }
+    */
+
+    /**
+    * @dev
+    * - 非確定ホワイトリスト格納追加関数追加
+    */
+    /*
+    function AddwhitelistUsers(address[] memory _users)public onlyOwner{
+
+        uint maxsize = whitelistedAddresses.length;
+        for(uint i = 0; i < _users.length; i++){
+            whitelistedAddresses[maxsize + i] = _users[i];
+            WhitelistAddressMaxmint[whitelistedAddresses[maxsize + i]] += confirmMaxMint;
+        }
+    }
+    */
 
     /**
     * @dev
     * - 確定ホワイトリストチェック関数
     */
     function confirmisWhitelisted(address _user)public view returns(bool){
-        for(uint i = 0; i < confirmwhitelistedAddresses.length; i++){
-            if(confirmwhitelistedAddresses[i] == _user){
-                return true;
-            }
+        if(oglist[_user] == true){
+            return true;
         }
         return false;
     }
@@ -195,18 +243,18 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     * - ホワイトリストチェック格納関数
     */
     function isWhitelisted(address _user)public view returns(bool){
-        for(uint i = 0; i < whitelistedAddresses.length; i++){
-            if(whitelistedAddresses[i] == _user || confirmwhitelistedAddresses[i] == _user){
-                return true;
-            }
+        if(whitelist[_user] == true){
+            return true;
         }
         return false;
     }
+
 
     /**
     * @dev
     * - 非確定ホワイトリストチェック格納関数
     */
+    /*
     function isWhitelistedonly(address _user)public view returns(bool){
         for(uint i = 0; i < whitelistedAddresses.length; i++){
             if(whitelistedAddresses[i] == _user){
@@ -215,11 +263,13 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         }
         return false;
     }
+    */
 
     /**
     * @dev
     * - 確定ホワイトリストMint数計算関数
     */
+    /*
     function calculationMaxmintconfirmWL(address _user)private {
         uint256 accountcount = 0;
         for(uint i = 0; i < confirmwhitelistedAddresses.length; i++){
@@ -229,11 +279,13 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
         }
         confirmWhitelistAddressMaxmint[_user] = accountcount;
     }
+    */
 
     /**
     * @dev
     * - 非確定ホワイトリストMint数計算関数
     */
+    /*
     function calculationMaxmintWL(address _user)private {
         uint256 accountcount = 0;
         for(uint i = 0; i < whitelistedAddresses.length; i++){
@@ -242,6 +294,14 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
             }
         }
         WhitelistAddressMaxmint[_user] = accountcount + confirmWhitelistAddressRemainingmint[_user];
+    }
+    */
+
+    function musuMaxmintWL(address _user, uint256 quantity)private {
+        if(whitelist[_user] == true){
+            WhitelistAddressMaxmint[_user] = stertWhitelistAddressMaxmint[_user];
+            WhitelistAddressMaxmint[_user] = WhitelistAddressMaxmint[_user] + confirmWhitelistAddressMaxmint[_user] - quantity;
+        }
     }
     
     /**
@@ -260,34 +320,39 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
             require(msg.value >= quantity * NftSalePrice, "Not enough money");
             require(confirmisWhitelisted(msg.sender),"user is not OG");
             uint256 confirmWhitelistMintedCount = confirmWhitelistAddressMintedBalance[msg.sender];
-            calculationMaxmintconfirmWL(msg.sender);
+            //calculationMaxmintconfirmWL(msg.sender);
             uint256 confirmsalemaxmint = confirmWhitelistAddressMaxmint[msg.sender];
             require(confirmWhitelistMintedCount + quantity <= confirmsalemaxmint, "MaxMint Over");
+            musuMaxmintWL(msg.sender, quantity);
             confirmWhitelistAddressRemainingmint[msg.sender] = confirmsalemaxmint - (confirmWhitelistMintedCount + quantity);
+
+            _nextTokenId();
+            _safeMint(msg.sender, quantity);
+            confirmWhitelistAddressMintedBalance[msg.sender] += quantity;
         }else if(onlyWhitelisted == true || (block.timestamp >= saleStartTime2nd && block.timestamp <= saleStartTimePublic)){
             require(msg.value >= quantity * NftSalePrice, "Not enough money");
             require(isWhitelisted(msg.sender),"user is not WL");
             uint256 ownerMintedCount = WhitelistAddressMintedBalance[msg.sender];
-            calculationMaxmintWL(msg.sender);
+            //calculationMaxmintWL(msg.sender);
             uint256 salemaxmint = WhitelistAddressMaxmint[msg.sender];
             require(ownerMintedCount + quantity <= salemaxmint, "MaxMint Over");
             WhitelistAddressRemainingmint[msg.sender] = salemaxmint - (ownerMintedCount + quantity);
+
+            _nextTokenId();
+            _safeMint(msg.sender, quantity);
+            WhitelistAddressMintedBalance[msg.sender] += quantity;
         }else if(block.timestamp >= saleStartTimePublic && block.timestamp <= saleFinish){
             require(msg.value >= quantity * NftPrice, "Not enough money");
             uint256 MintCount = addressMintedBalance[msg.sender];
             require(MintCount + quantity <= (MaxMint + WhitelistAddressRemainingmint[msg.sender]), "MaxMint Over");
-        }
-        _nextTokenId();
-        _safeMint(msg.sender, quantity);
-        withdraw();
-        if(onlyconfirmWhitelisted == true || (block.timestamp >= saleStartTime1st && block.timestamp <= saleStartTime2nd)){
-            confirmWhitelistAddressMintedBalance[msg.sender] += quantity;
-        }else if(onlyWhitelisted == true || (block.timestamp >= saleStartTime2nd && block.timestamp <= saleStartTimePublic)){
-            WhitelistAddressMintedBalance[msg.sender] += quantity;
-        }else if(block.timestamp >= saleStartTimePublic && block.timestamp <= saleFinish){
+
+            _nextTokenId();
+            _safeMint(msg.sender, quantity);
             addressMintedBalance[msg.sender] += quantity;
         }
+
         emit MintLog(msg.sender, quantity);
+        withdraw();
     }
 
     /**
@@ -300,7 +365,7 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     */
     function MintOwnerToCredit(address _to, uint256 quantity) external
      onlyOwner
-     MaxMints
+     MaxMintsow
      NosingOverMints(quantity)
      {
         //require(MaxNfts >= totalNFTs,"sold out");
@@ -323,7 +388,7 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     */
     function MintOwnerToGive(address _to, uint256 quantity) external
      onlyOwner
-     MaxMints
+     MaxMintsow
      NosingOverMints(quantity)
      {
         //require(MaxNfts >= totalNFTs,"sold out");
@@ -335,7 +400,6 @@ contract Tabenomics is ERC721A, Ownable, ERC721ABurnable, ERC721AQueryable{
     /**
     * @dev
     * - バーン関数
-    * - 
     */
     function burn(uint256 tokenId, bool approvalCheck) internal virtual {
         _burn(tokenId, approvalCheck);
